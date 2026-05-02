@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +15,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $now = now()->toDateTimeString();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        DB::statement("
+            INSERT INTO users (name, email, password, role, company_id, created_at, updated_at)
+            VALUES (
+                'Super Admin',
+                'superadmin@sembark.com',
+                '" . bcrypt('password') . "',
+                'super_admin',
+                NULL,
+                '{$now}',
+                '{$now}'
+            )
+        ");
     }
 }
