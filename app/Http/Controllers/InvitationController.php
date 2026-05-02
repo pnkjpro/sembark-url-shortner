@@ -18,6 +18,22 @@ class InvitationController extends Controller
 {
     use JsonResponseTrait;
 
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', Invitation::class);
+
+        $user = $request->user();
+        $query = Invitation::query();
+
+        match ($user->role) {
+            UserRole::SUPER_ADMIN => $query->with('company', 'invitedBy'),
+            UserRole::ADMIN => $query->where('company_id', $user->company_id)->with('invitedBy'),
+            default => null,
+        };
+
+        return $this->successResponse($query->latest()->paginate(20));
+    }
+
     public function store(Request $request)
     {
         $this->authorize('create', Invitation::class);

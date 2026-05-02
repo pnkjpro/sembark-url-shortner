@@ -13,6 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
+    Route::get('/invitations', [InvitationController::class, 'index']);
     Route::post('/invitations', [InvitationController::class, 'store']);
 
     Route::get('/short-urls', [ShortUrlController::class, 'index']);
