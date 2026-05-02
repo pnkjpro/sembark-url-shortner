@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait JsonResponseTrait
 {
-    protected function successResponse($data, $message = null, $code = 200)
+    public function successResponse($data, $message = null, $code = 200)
     {
         return response()->json([
             'error' => false,
@@ -15,7 +15,7 @@ trait JsonResponseTrait
         ], $code);
     }
     
-    protected function errorResponse($data, $message = null, $code = 422)
+    public function errorResponse($data, $message = null, $code = 422)
     {
         return response()->json([
             'error' => true,
