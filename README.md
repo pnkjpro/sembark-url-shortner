@@ -1,59 +1,179 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sembark URL Shortener
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based URL shortener with role-based access control (RBAC), a company-scoped invitation system, and a dashboard for managing short URLs.
 
-## About Laravel
+> **Author's Note:** Every service, endpoint, and architectural decision in this project was fully conceptualized and implemented by me. The only exceptions are minimal debugging support and the dashboard UI, where I used AI assistance, as the dashboard UI was not part of the core evaluation criteria for this assignment.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Authentication & Authorization
+- Three user roles: **SuperAdmin**, **Admin**, and **Member**.
+- SuperAdmin account is created via a Database Seeder.
+- Token-based authentication using **Laravel Sanctum** (login / logout).
 
-## Learning Laravel
+### Invitation System
+- **SuperAdmin** can invite an Admin into a new company (a new company is created automatically alongside the invitation).
+- **Admin** can invite another Admin or a Member within their own company.
+- A public invitation acceptance endpoint allows invited users to register by providing their token, name, and password.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### URL Shortener
+- **Admin** and **Member** can create short URLs.
+- **SuperAdmin** cannot create short URLs.
+- **SuperAdmin** can see the list of all short URLs across every company.
+- **Admin** can only see short URLs created within their own company.
+- **Member** can only see the short URLs they created themselves.
+- All short URLs are publicly resolvable and redirect to the original URL (no authentication required).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Dashboard (AI-Assisted UI)
+- Role-scoped statistics (total URLs, companies, users, pending invitations — scoped per role).
+- Role-scoped user listing for SuperAdmin and Admin.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Tech Stack
 
-### Premium Partners
+- **Framework:** Laravel 12
+- **Authentication:** Laravel Sanctum (API token-based)
+- **Database:** SQLite (default) — configurable to MySQL/PostgreSQL
+- **Frontend Build:** Vite
+- **PHP:** >= 8.2
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Project Structure
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+app/
+├── Controllers/
+│   ├── AuthController.php          # Login, logout, current user
+│   ├── DashboardController.php     # Dashboard stats & user listing
+│   ├── InvitationController.php    # Create, list & accept invitations
+│   ├── RedirectController.php      # Public short URL redirect
+│   └── ShortUrlController.php      # Create & list short URLs
+├── Enums/
+│   └── UserRole.php                # SuperAdmin, Admin, Member
+├── Models/
+│   ├── Company.php
+│   ├── Invitation.php
+│   ├── ShortUrl.php
+│   └── User.php
+├── Policies/
+│   ├── InvitationPolicy.php        # Authorization for invitation actions
+│   └── ShortUrlPolicy.php          # Authorization for short URL actions
+└── Traits/
+    └── JsonResponseTrait.php       # Consistent JSON API response format
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Setup and Installation
 
-## Security Vulnerabilities
+### Prerequisites
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- PHP >= 8.2
+- Composer
+- Node.js & npm
 
-## License
+### Steps
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd sembark-url-shortner
+   ```
+
+2. **Install PHP dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Install Node.js dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Environment setup:**
+   ```bash
+   cp .env.example .env
+   ```
+
+5. **Generate application key:**
+   ```bash
+   php artisan key:generate
+   ```
+
+6. **Database setup:**
+   The project uses SQLite by default. Create the database file:
+   ```bash
+   # Linux / macOS
+   touch database/database.sqlite
+
+   # Windows (PowerShell)
+   New-Item database/database.sqlite
+   ```
+
+7. **Run migrations and seed the SuperAdmin account:**
+   ```bash
+   php artisan migrate --seed
+   ```
+   This creates all the required tables and seeds the SuperAdmin user:
+   - **Email:** `superadmin@sembark.com`
+   - **Password:** `password`
+
+8. **Build frontend assets:**
+   ```bash
+   npm run build
+   ```
+
+---
+
+## Running the Project
+
+**Start the development server:**
+```bash
+php artisan serve
+```
+
+The application will be accessible at **http://localhost:8000**.
+
+**For full development mode** (server + queue + logs + Vite hot-reload):
+```bash
+composer dev
+```
+
+---
+
+## API Endpoints
+
+### Public (No Authentication)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/login` | Login and receive an API token |
+| `POST` | `/api/invitations/accept` | Accept an invitation and register |
+| `GET` | `/{shortCode}` | Resolve a short URL and redirect |
+
+### Authenticated (Bearer Token via Sanctum)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/logout` | Logout (revoke current token) |
+| `GET` | `/api/user` | Get current authenticated user |
+| `GET` | `/api/dashboard/stats` | Get role-scoped dashboard statistics |
+| `GET` | `/api/users` | List users (SuperAdmin / Admin only) |
+| `GET` | `/api/invitations` | List invitations (SuperAdmin / Admin only) |
+| `POST` | `/api/invitations` | Create an invitation (SuperAdmin / Admin only) |
+| `GET` | `/api/short-urls` | List short URLs (role-scoped) |
+| `POST` | `/api/short-urls` | Create a short URL (Admin / Member only) |
+
+---
+
+## Architectural Highlights
+
+- **Laravel Policies** for clean, centralized authorization logic.
+- **PHP Enums** (`UserRole`) for type-safe role definitions.
+- **`JsonResponseTrait`** for a consistent API response structure across all controllers.
+- **Role-scoped data isolation** using `match` expressions in controllers, ensuring each role only sees data they are permitted to access.
+- **Database transactions** for multi-step operations like invitation creation (SuperAdmin flow) and invitation acceptance.
